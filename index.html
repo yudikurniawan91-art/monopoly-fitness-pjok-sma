@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f0e7">
+  <meta name="description" content="Monopoly Fitness PJOK SMA, permainan papan kebugaran untuk dimainkan bersama teman.">
+  <title>Monopoly Fitness | PJOK SMA</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      color-scheme: light;
+      --paper: #f3f0e7;
+      --ink: #202820;
+      --muted: #74796e;
+      --green: #176b4b;
+      --green-dark: #104d38;
+      --lime: #d4ec71;
+      --line: #d7d8ca;
+      --coral: #e66c50;
+      --blue: #5a91bb;
+      --tile: #fffdf5;
+      font-family: 'Manrope', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; min-height: 100vh; background: radial-gradient(ellipse at 12% 0%, #fffdf2 0, transparent 34rem), var(--paper); }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .shell { max-width: 1440px; margin: auto; padding: 22px 30px 34px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); padding-bottom: 16px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark { display: grid; width: 38px; aspect-ratio: 1; place-items: center; background: var(--green); color: var(--lime); border-radius: 11px; font-size: 19px; font-weight: 800; }
+    .brand-name { font-weight: 800; font-size: 14px; line-height: 1.15; letter-spacing: 0; }
+    .brand-sub { color: var(--muted); font: 10px 'DM Mono', monospace; margin-top: 4px; }
+    .top-meta { display: flex; gap: 24px; color: var(--muted); font: 10px 'DM Mono', monospace; text-transform: uppercase; }
+    .top-meta span { display: flex; align-items: center; gap: 7px; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #56a56c; box-shadow: 0 0 0 3px #56a56c24; }
+    .heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding: 22px 0 18px; }
+    .eyebrow { margin: 0 0 7px; color: var(--green); font: 10px 'DM Mono', monospace; letter-spacing: 0; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(24px, 3vw, 34px); line-height: 1.12; letter-spacing: 0; }
+    .heading-note { max-width: 300px; color: var(--muted); font-size: 12px; line-height: 1.6; text-align: right; }
+    .layout { display: grid; grid-template-columns: minmax(530px, 1fr) 310px; align-items: start; gap: 20px; }
+    .board-wrap { padding: 12px; border: 1px solid #d9dacc; border-radius: 7px; background: #e9eadc; box-shadow: 0 5px 20px #3440270b; }
+    .board { display: grid; aspect-ratio: 1; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-template-rows: repeat(7, minmax(0, 1fr)); gap: 5px; }
+    .tile { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; padding: 7px 6px; border: 1px solid #dedfcf; border-radius: 4px; background: var(--tile); text-align: left; }
+    .tile-color { position: absolute; inset: 0 0 auto; height: 5px; background: var(--green); }
+    .tile[data-type="start"] { background: var(--green); color: white; border-color: var(--green); }
+    .tile[data-type="start"] .tile-color { background: var(--lime); }
+    .tile[data-type="quiz"] .tile-color { background: var(--blue); }
+    .tile[data-type="challenge"] .tile-color { background: var(--coral); }
+    .tile[data-type="bonus"] .tile-color { background: #d0a93c; }
+    .tile-number { color: #92968a; font: 9px 'DM Mono', monospace; }
+    .tile[data-type="start"] .tile-number { color: #c0d7c5; }
+    .tile-name { margin: auto 0; font-size: clamp(7px, .8vw, 10px); font-weight: 800; line-height: 1.15; overflow-wrap: anywhere; }
+    .tile-price { color: var(--muted); font: 9px 'DM Mono', monospace; }
+    .tile[data-type="start"] .tile-price { color: #d1e0d1; }
+    .tile-owner { position: absolute; right: 5px; top: 9px; width: 7px; height: 7px; border: 1px solid white; border-radius: 50%; background: transparent; }
+    .tile-players { display: flex; gap: 2px; min-height: 8px; }
+    .pawn { width: 8px; height: 8px; border: 1px solid white; border-radius: 50%; box-shadow: 0 0 0 1px #20282044; }
+    .center { grid-column: 2 / 7; grid-row: 2 / 7; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px; border-radius: 5px; background: #dce7cb; text-align: center; }
+    .center-kicker { color: var(--green); font: 10px 'DM Mono', monospace; text-transform: uppercase; }
+    .center h2 { max-width: 280px; margin: 10px 0 8px; font-size: clamp(17px, 2.2vw, 27px); line-height: 1.1; }
+    .center-copy { max-width: 260px; min-height: 36px; margin: 0; color: #59654f; font-size: 11px; line-height: 1.55; }
+    .dice { display: grid; width: 46px; aspect-ratio: 1; place-items: center; margin: 15px 0 13px; border: 1px solid #cad8b6; border-radius: 9px; background: #fffdf4; box-shadow: 0 3px 0 #b9c8a6; font: 24px 'DM Mono', monospace; }
+    .primary, .secondary { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; gap: 8px; padding: 0 17px; border: 0; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 800; transition: transform .15s, background .15s; }
+    .primary { background: var(--green); color: white; }
+    .primary:hover:not(:disabled) { background: var(--green-dark); transform: translateY(-1px); }
+    .secondary { border: 1px solid var(--line); background: transparent; }
+    button:disabled { cursor: not-allowed; opacity: .48; }
+    .side { display: grid; gap: 14px; }
+    .panel { border: 1px solid var(--line); border-radius: 6px; background: #fbfaf4; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 13px 15px; border-bottom: 1px solid var(--line); }
+    .panel-title { margin: 0; font-size: 12px; font-weight: 800; }
+    .panel-caption { color: var(--muted); font: 9px 'DM Mono', monospace; text-transform: uppercase; }
+    .players { padding: 4px 15px; }
+    .player-row { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 9px; min-height: 53px; border-bottom: 1px solid #e9e9df; }
+    .player-row:last-child { border-bottom: 0; }
+    .player-dot { width: 9px; aspect-ratio: 1; border-radius: 50%; }
+    .player-name { font-size: 11px; font-weight: 700; }
+    .player-stats { margin-top: 3px; color: var(--muted); font: 9px 'DM Mono', monospace; }
+    .player-cash { font: 11px 'DM Mono', monospace; }
+    .player-row.active { margin: 0 -15px; padding: 0 15px; background: #eef2e4; }
+    .activity { max-height: 197px; overflow: auto; padding: 5px 15px 8px; }
+    .activity-item { position: relative; padding: 9px 0 9px 14px; border-bottom: 1px solid #e9e9df; color: #51574d; font-size: 10px; line-height: 1.45; }
+    .activity-item:last-child { border-bottom: 0; }
+    .activity-item::before { position: absolute; top: 14px; left: 0; width: 5px; height: 5px; border-radius: 50%; background: #98a685; content: ''; }
+    .activity-item strong { color: var(--ink); }
+    .rules { padding: 12px 15px 14px; color: #5f655a; font-size: 10px; line-height: 1.65; }
+    .rules p { margin: 0; }
+    .rules strong { color: var(--ink); }
+    .setup { position: fixed; z-index: 5; inset: 0; display: grid; place-items: center; padding: 18px; background: #17241db8; backdrop-filter: blur(4px); }
+    .setup-card { width: min(100%, 420px); padding: 26px; border-radius: 7px; background: var(--paper); box-shadow: 0 20px 80px #10201644; animation: arrive .35s ease-out both; }
+    @keyframes arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .setup-card h2 { margin: 0 0 7px; font-size: 22px; }
+    .setup-card > p { margin: 0 0 20px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .setup-fields { display: grid; gap: 10px; margin-bottom: 17px; }
+    .setup-field { display: grid; grid-template-columns: 22px 1fr; align-items: center; gap: 7px; }
+    .setup-field[hidden] { display: none; }
+    .setup-field label { color: var(--muted); font: 10px 'DM Mono', monospace; }
+    .setup-field input { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 4px; outline-color: var(--green); background: #fffdf5; font-size: 12px; }
+    .setup-options { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 15px; }
+    .setup-options label { color: var(--muted); font-size: 11px; }
+    select { padding: 8px 26px 8px 10px; border: 1px solid var(--line); border-radius: 4px; background: #fffdf5; font-size: 11px; }
+    .setup-start { width: 100%; }
+    .hidden { display: none !important; }
+    .modal-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 12px; }
+    .modal-actions .primary, .modal-actions .secondary { min-height: 36px; padding: 0 12px; font-size: 10px; }
+    .footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 13px; color: var(--muted); font: 9px 'DM Mono', monospace; }
+    @media (max-width: 1024px) {
+      .shell { padding: 17px 18px 26px; }
+      .layout { grid-template-columns: minmax(0, 1fr) 270px; gap: 13px; }
+      .board-wrap { padding: 8px; }
+      .board { gap: 3px; }
+      .tile { padding: 5px 4px; }
+      .center { padding: 10px; }
+    }
+    @media (max-width: 700px) {
+      .shell { padding: 13px 12px 24px; }
+      .top-meta span:last-child, .heading-note { display: none; }
+      .heading { padding: 17px 0 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .board-wrap { max-width: 600px; width: 100%; margin: auto; }
+      .side { grid-template-columns: 1fr; }
+      .player-row { min-height: 46px; }
+      .activity { max-height: 145px; }
+      .tile-name { font-size: clamp(6px, 1.5vw, 9px); }
+      .tile-number, .tile-price { font-size: 7px; }
+      .center-copy { font-size: 10px; }
+      .dice { width: 35px; margin: 8px 0; font-size: 20px; }
+      .center h2 { margin: 6px 0; }
+      .primary, .secondary { min-height: 44px; padding: 0 12px; }
+      .modal-actions .primary, .modal-actions .secondary { min-height: 44px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark" aria-hidden="true">F</div><div><div class="brand-name">MONOPOLY FITNESS</div><div class="brand-sub">PJOK SMA / BOARD GAME</div></div></div>
+      <div class="top-meta"><span><i class="live-dot"></i> SIAP DIMAINKAN</span><span>2-4 PEMAIN / SATU PERANGKAT</span></div>
+    </header>
+    <section class="heading">
+      <div><p class="eyebrow">Kebugaran jadi strategi</p><h1>Kelilingi papan. Jaga stamina.</h1></div>
+      <div class="heading-note">Kumpulkan aset kebugaran, jawab kuis PJOK, dan jadilah pemain dengan kondisi terbaik.</div>
+    </section>
+    <section class="layout" aria-label="Permainan Monopoly Fitness">
+      <div class="board-wrap"><div class="board" id="board" aria-label="Papan permainan"></div></div>
+      <aside class="side">
+        <section class="panel">
+          <header class="panel-head"><h2 class="panel-title">Pemain</h2><span class="panel-caption" id="round-label">MENUNGGU MULAI</span></header>
+          <div class="players" id="players-list"><div class="rules"><p>Siapkan 2-4 pemain untuk memulai permainan.</p></div></div>
+        </section>
+        <section class="panel">
+          <header class="panel-head"><h2 class="panel-title">Catatan giliran</h2><span class="panel-caption">TERBARU</span></header>
+          <div class="activity" id="activity"><div class="activity-item">Permainan belum dimulai. Siapkan pemain untuk melempar dadu pertama.</div></div>
+        </section>
+        <section class="panel">
+          <header class="panel-head"><h2 class="panel-title">Cara menang</h2><span class="panel-caption">ATURAN</span></header>
+          <div class="rules"><p><strong>Ambil aset</strong> untuk mengumpulkan poin. <strong>Kuis PJOK</strong> dan tantangan kebugaran memberi bonus. Permainan berakhir setelah 2 putaran; skor akhir menggabungkan saldo, aset, dan poin kebugaran.</p></div>
+        </section>
+      </aside>
+    </section>
+    <footer class="footer"><span>EDUKASI JASMANI / SMA</span><span>GILIRAN BERGANTIAN</span></footer>
+  </main>
+
+  <section class="setup" id="setup" aria-label="Siapkan permainan">
+    <form class="setup-card" id="setup-form">
+      <p class="eyebrow">Permainan baru</p><h2>Siapa yang ikut bermain?</h2>
+      <p>Masukkan nama pemain. Semua pemain bergiliran di perangkat yang sama.</p>
+      <div class="setup-options"><label for="player-count">Jumlah pemain</label><select id="player-count"><option value="2">2 pemain</option><option value="3">3 pemain</option><option value="4">4 pemain</option></select></div>
+      <div class="setup-fields" id="setup-fields"></div>
+      <button class="primary setup-start" type="submit">Mulai bermain <span aria-hidden="true">→</span></button>
+    </form>
+  </section>
+
+  <script>
+    const spaces = [
+      { name: 'START', type: 'start' }, { name: 'Lari 100 m', type: 'asset', price: 120 }, { name: 'Kuis PJOK', type: 'quiz' },
+      { name: 'Bola basket', type: 'asset', price: 140 }, { name: 'Tantangan', type: 'challenge' }, { name: 'Renang', type: 'asset', price: 160 },
+      { name: 'Bonus sehat', type: 'bonus' }, { name: 'Bulu tangkis', type: 'asset', price: 180 }, { name: 'Kuis PJOK', type: 'quiz' },
+      { name: 'Latihan inti', type: 'asset', price: 200 }, { name: 'Tantangan', type: 'challenge' }, { name: 'Voli', type: 'asset', price: 210 },
+      { name: 'Bonus sehat', type: 'bonus' }, { name: 'Lompat jauh', type: 'asset', price: 220 }, { name: 'Kuis PJOK', type: 'quiz' },
+      { name: 'Senam lantai', type: 'asset', price: 240 }, { name: 'Tantangan', type: 'challenge' }, { name: 'Futsal', type: 'asset', price: 260 },
+      { name: 'Bonus sehat', type: 'bonus' }, { name: 'Lari estafet', type: 'asset', price: 280 }, { name: 'Kuis PJOK', type: 'quiz' },
+      { name: 'Kebugaran', type: 'asset', price: 300 }, { name: 'Tantangan', type: 'challenge' }, { name: 'Pencak silat', type: 'asset', price: 320 }
+    ];
+    const colors = ['#e66c50', '#5a91bb', '#d3a842', '#176b4b'];
+    const positions = [
+      ...Array.from({ length: 7 }, (_, col) => [1, col + 1]),
+      ...Array.from({ length: 6 }, (_, row) => [row + 2, 7]),
+      ...Array.from({ length: 7 }, (_, col) => [7, 7 - col]),
+      ...Array.from({ length: 4 }, (_, row) => [6 - row, 1])
+    ];
+    const questions = [
+      { q: 'Berapa jumlah pemain dalam satu tim bola voli di lapangan?', a: ['5 pemain', '6 pemain', '7 pemain'], correct: 1 },
+      { q: 'Latihan untuk meningkatkan daya tahan jantung dan paru-paru disebut?', a: ['Latihan aerobik', 'Latihan kelentukan', 'Latihan keseimbangan'], correct: 0 },
+      { q: 'Berapa jumlah pemain inti sepak bola dalam satu tim?', a: ['9 pemain', '10 pemain', '11 pemain'], correct: 2 },
+      { q: 'Gerakan mengubah arah dengan cepat tanpa kehilangan keseimbangan melatih?', a: ['Kelincahan', 'Kekuatan', 'Ketepatan'], correct: 0 },
+      { q: 'Sikap awal yang tepat sebelum berolahraga adalah?', a: ['Pendinginan', 'Pemanasan', 'Tidur'], correct: 1 }
+    ];
+    const state = { players: [], turn: 0, round: 1, phase: 'roll', ended: false, owners: Array(spaces.length).fill(null), log: [] };
+    const board = document.querySelector('#board');
+    const playersList = document.querySelector('#players-list');
+    const activity = document.querySelector('#activity');
+    const center = document.createElement('div');
+    center.className = 'center';
+    center.innerHTML = '<div class="center-kicker">Giliran pertama</div><h2>Siap bergerak?</h2><p class="center-copy">Lempar dadu untuk memulai putaran kebugaran.</p><div class="dice" id="dice" aria-label="Hasil dadu">-</div><button class="primary" id="roll-button" type="button">Lempar dadu <span aria-hidden="true">↗</span></button><div class="modal-actions hidden" id="modal-actions"></div>';
+    board.append(center);
+    const dieFace = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+
+    function makeBoard() {
+      spaces.forEach((space, index) => {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.dataset.type = space.type;
+        tile.style.gridRow = positions[index][0];
+        tile.style.gridColumn = positions[index][1];
+        tile.id = `tile-${index}`;
+        tile.innerHTML = `<span class="tile-color"></span><span class="tile-number">${String(index).padStart(2, '0')}</span><span class="tile-name">${space.name}</span><span class="tile-price">${space.price ? `${space.price} fit` : space.type === 'start' ? '+100 fit' : space.type.toUpperCase()}</span><span class="tile-owner"></span><span class="tile-players"></span>`;
+        board.append(tile);
+      });
+      render();
+    }
+
+    function addLog(text) {
+      state.log.unshift(text);
+      state.log = state.log.slice(0, 12);
+      activity.innerHTML = state.log.map(item => `<div class="activity-item">${item}</div>`).join('');
+    }
+
+    function render() {
+      playersList.innerHTML = state.players.map((player, index) => `<div class="player-row ${index === state.turn && !state.ended ? 'active' : ''}"><i class="player-dot" style="background:${player.color}"></i><div><div class="player-name">${escapeHtml(player.name)}</div><div class="player-stats">${player.fitness} POIN KEBUGARAN · ${player.assets.length} ASET</div></div><div class="player-cash">${player.cash} fit</div></div>`).join('') || '<div class="rules"><p>Siapkan 2-4 pemain untuk memulai permainan.</p></div>';
+      document.querySelector('#round-label').textContent = state.players.length ? `PUTARAN ${Math.min(state.round, 2)} / 2` : 'MENUNGGU MULAI';
+      spaces.forEach((_, index) => {
+        const tile = document.querySelector(`#tile-${index}`);
+        if (!tile) return;
+        const owner = state.owners[index];
+        tile.querySelector('.tile-owner').style.background = owner === null ? 'transparent' : state.players[owner].color;
+        tile.querySelector('.tile-players').innerHTML = state.players.filter(player => player.position === index).map(player => `<i class="pawn" style="background:${player.color}" title="${escapeHtml(player.name)}"></i>`).join('');
+      });
+      document.querySelector('#roll-button').disabled = state.phase !== 'roll' || state.ended;
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+    }
+
+    function setCenter(kicker, title, copy, actions = []) {
+      center.querySelector('.center-kicker').textContent = kicker;
+      center.querySelector('h2').textContent = title;
+      center.querySelector('.center-copy').textContent = copy;
+      const buttonBox = center.querySelector('#modal-actions');
+      buttonBox.innerHTML = '';
+      buttonBox.classList.toggle('hidden', actions.length === 0);
+      actions.forEach(action => {
+        const button = document.createElement('button');
+        button.className = action.secondary ? 'secondary' : 'primary';
+        button.type = 'button';
+        button.textContent = action.label;
+        button.addEventListener('click', action.run);
+        buttonBox.append(button);
+      });
+      center.querySelector('#roll-button').classList.toggle('hidden', actions.length > 0);
+    }
+
+    function finishTurn() {
+      if (state.ended) return;
+      state.phase = 'roll';
+      state.turn++;
+      if (state.turn >= state.players.length) {
+        state.turn = 0;
+        if (state.players.every(player => player.laps >= 2)) {
+          endGame();
+          return;
+        }
+        state.round = Math.min(2, Math.min(...state.players.map(player => player.laps)) + 1);
+      }
+      const current = state.players[state.turn];
+      setCenter(`Giliran ${current.name}`, 'Siap bergerak?', 'Lempar dadu dan lanjutkan perjalanan kebugaran.');
+      render();
+    }
+
+    function roll() {
+      if (state.phase !== 'roll' || state.ended) return;
+      const player = state.players[state.turn];
+      const rollValue = Math.floor(Math.random() * 6) + 1;
+      center.querySelector('#dice').textContent = dieFace[rollValue - 1];
+      let next = player.position + rollValue;
+      if (next >= spaces.length) {
+        next %= spaces.length;
+        player.cash += 100;
+        player.fitness += 2;
+        player.laps++;
+        addLog(`<strong>${escapeHtml(player.name)}</strong> melewati START: +100 fit dan +2 poin kebugaran.`);
+      }
+      player.position = next;
+      state.phase = 'resolve';
+      render();
+      resolveTile(player, next);
+    }
+
+    function resolveTile(player, index) {
+      const space = spaces[index];
+      if (space.type === 'start') {
+        setCenter('Garis awal', 'Mulai dengan semangat', 'Kamu mendarat tepat di START. Bonus perjalanan sudah dihitung.', [{ label: 'Lanjutkan', run: afterLanding }]);
+      } else if (space.type === 'asset') {
+        const owner = state.owners[index];
+        if (owner === null) {
+          setCenter('Aset kebugaran', `Ambil ${space.name}?`, `Harga ${space.price} fit. Aset memberi 5 poin saat permainan berakhir.`, [
+            { label: `Beli · ${space.price} fit`, run: () => { if (player.cash >= space.price) { player.cash -= space.price; player.assets.push(index); state.owners[index] = state.turn; addLog(`<strong>${escapeHtml(player.name)}</strong> mengambil aset ${space.name}.`); } else addLog(`<strong>${escapeHtml(player.name)}</strong> belum punya saldo untuk ${space.name}.`); afterLanding(); } },
+            { label: 'Lewati', secondary: true, run: () => { addLog(`<strong>${escapeHtml(player.name)}</strong> melewati aset ${space.name}.`); afterLanding(); } }
+          ]);
+        } else if (owner !== state.turn) {
+          const rent = Math.max(30, Math.floor(space.price * .3));
+          player.cash -= rent;
+          state.players[owner].cash += rent;
+          addLog(`<strong>${escapeHtml(player.name)}</strong> membayar ${rent} fit kepada ${escapeHtml(state.players[owner].name)}.`);
+          setCenter('Aset lawan', 'Bayar biaya latihan', `${rent} fit diberikan kepada ${state.players[owner].name}.`, [{ label: 'Lanjutkan', run: afterLanding }]);
+        } else {
+          player.fitness += 1;
+          addLog(`<strong>${escapeHtml(player.name)}</strong> beristirahat di aset miliknya dan mendapat 1 poin kebugaran.`);
+          setCenter('Aset milikmu', 'Latihan konsisten!', 'Kamu mendapat 1 poin kebugaran.', [{ label: 'Lanjutkan', run: afterLanding }]);
+        }
+      } else if (space.type === 'quiz') {
+        const question = questions[Math.floor(Math.random() * questions.length)];
+        setCenter('Kuis PJOK', question.q, 'Pilih satu jawaban untuk menguji pengetahuanmu.');
+        const actions = question.a.map((answer, i) => ({ label: answer, secondary: true, run: () => {
+          if (i === question.correct) { player.fitness += 3; player.cash += 40; addLog(`<strong>${escapeHtml(player.name)}</strong> menjawab kuis dengan benar: +3 poin dan +40 fit.`); setCenter('Jawaban benar', 'Pengetahuanmu bugar!', 'Kamu mendapat 3 poin kebugaran dan 40 fit.', [{ label: 'Lanjutkan', run: afterLanding }]); }
+          else { player.fitness = Math.max(0, player.fitness - 1); addLog(`<strong>${escapeHtml(player.name)}</strong> belum tepat menjawab kuis.`); setCenter('Belum tepat', 'Tetap semangat belajar', 'Kamu kehilangan 1 poin kebugaran. Jawaban yang tepat: ' + question.a[question.correct] + '.', [{ label: 'Lanjutkan', run: afterLanding }]); }
+        } }));
+        setCenter('Kuis PJOK', question.q, 'Pilih satu jawaban untuk menguji pengetahuanmu.', actions);
+      } else if (space.type === 'challenge') {
+        setCenter('Tantangan gerak', 'Pilih tantanganmu', 'Lakukan gerakan dengan aman sesuai kemampuan. Selesaikan untuk mendapat poin.', [
+          { label: '10 squat', run: () => challengeDone(player, '10 squat') },
+          { label: '20 jumping jack', secondary: true, run: () => challengeDone(player, '20 jumping jack') },
+          { label: 'Lewati', secondary: true, run: () => { addLog(`<strong>${escapeHtml(player.name)}</strong> memilih melewati tantangan.`); afterLanding(); } }
+        ]);
+      } else if (space.type === 'bonus') {
+        const bonus = Math.random() > .5 ? { cash: 80, fitness: 1, text: 'Minum air dan pulihkan energi: +80 fit, +1 poin.' } : { cash: 0, fitness: 3, text: 'Tidur cukup sebelum latihan: +3 poin kebugaran.' };
+        player.cash += bonus.cash;
+        player.fitness += bonus.fitness;
+        addLog(`<strong>${escapeHtml(player.name)}</strong> mendapat bonus sehat.`);
+        setCenter('Bonus sehat', 'Kebiasaan baik berbuah!', bonus.text, [{ label: 'Lanjutkan', run: afterLanding }]);
+      }
+      render();
+    }
+
+    function challengeDone(player, challenge) {
+      player.fitness += 4;
+      player.cash += 50;
+      addLog(`<strong>${escapeHtml(player.name)}</strong> menyelesaikan ${challenge}: +4 poin dan +50 fit.`);
+      setCenter('Tantangan selesai', 'Gerak bagus!', `Kamu menyelesaikan ${challenge} dan mendapat 4 poin kebugaran serta 50 fit.`, [{ label: 'Lanjutkan', run: afterLanding }]);
+      render();
+    }
+
+    function afterLanding() {
+      render();
+      finishTurn();
+    }
+
+    function endGame() {
+      state.ended = true;
+      state.phase = 'ended';
+      const sorted = [...state.players].sort((a, b) => finalScore(b) - finalScore(a));
+      addLog(`Permainan selesai. <strong>${escapeHtml(sorted[0].name)}</strong> menjadi juara dengan ${finalScore(sorted[0])} poin.`);
+      setCenter('Permainan selesai', `${sorted[0].name} menang!`, `Skor akhir ${finalScore(sorted[0])} poin. Mulai permainan baru untuk bermain lagi.`, [{ label: 'Main lagi', run: () => { window.location.reload(); } }]);
+      render();
+    }
+
+    function finalScore(player) { return Math.max(0, player.cash) + player.assets.reduce((sum, index) => sum + Math.round(spaces[index].price * .6), 0) + player.fitness * 20; }
+
+    function updateSetupFields() {
+      const count = Number(document.querySelector('#player-count').value);
+      document.querySelector('#setup-fields').innerHTML = Array.from({ length: count }, (_, i) => `<div class="setup-field"><label for="player-${i}">${String(i + 1).padStart(2, '0')}</label><input id="player-${i}" maxlength="18" placeholder="Nama pemain ${i + 1}" value="${['Andi', 'Bima', 'Citra', 'Dewi'][i]}" required></div>`).join('');
+    }
+
+    document.querySelector('#player-count').addEventListener('change', updateSetupFields);
+    document.querySelector('#setup-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const count = Number(document.querySelector('#player-count').value);
+      state.players = Array.from({ length: count }, (_, index) => ({ name: document.querySelector(`#player-${index}`).value.trim() || `Pemain ${index + 1}`, color: colors[index], cash: 1000, fitness: 0, position: 0, laps: 0, assets: [] }));
+      document.querySelector('#setup').classList.add('hidden');
+      state.log = [];
+      addLog(`Permainan dimulai dengan ${count} pemain. Setiap pemain mendapat 1.000 fit.`);
+      setCenter(`Giliran ${state.players[0].name}`, 'Siap bergerak?', 'Lempar dadu dan lanjutkan perjalanan kebugaran.');
+      render();
+    });
+    document.querySelector('#roll-button').addEventListener('click', roll);
+    updateSetupFields();
+    makeBoard();
+  </script>
+</body>
+</html>
